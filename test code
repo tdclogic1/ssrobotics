@@ -9,6 +9,7 @@ position: "coder"
 function displayInfo() {
   document.getElementById("name").innerHTML = memberOne.name;
   document.getElementById("grade").innerHTML = "Grade " + memberOne.grade;
+}
 </script>
 </head>
 <body>
