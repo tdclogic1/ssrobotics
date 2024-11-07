@@ -4,7 +4,7 @@
 const memberOne = {
 name: "Wayne",
 grade: 12,
-position: coder
+position: "coder"
 }
 function displayInfo() {
   document.getElementById("name").innerHTML = memberOne.name;
