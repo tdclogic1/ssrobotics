@@ -4,23 +4,41 @@
 const memberOne = {
 name: "Wayne",
 grade: 12,
-position: "coder"
+position: "coder",
+hobbies: "reading, playing chess"
 }
-function displayInfo() {
-  document.getElementById("name").innerHTML = memberOne.name;
-  document.getElementById("grade").innerHTML = "Grade " + memberOne.grade;
+const memberTwo = {
+name: "Vincent",
+grade: 12,
+position: "boron",
+hobbies: "sleeping, working"
 }
+function displayInfo(member) {
+  document.getElementById("name").innerHTML = member.name;
+  document.getElementById("grade").innerHTML = "Grade: " + member.grade;
+  document.getElementById("position").innerHTML = "Position: " + member.position;
+  document.getElementById("hobbies").innerHTML = "Hobbies: " + member.hobbies;
+  }
+  function displayMemberOne() {
+  displayInfo(memberOne)
+  }
+  function displayMemberTwo() {
+  displayInfo(memberTwo)
+  }
 </script>
 </head>
 <body>
 
-<button type="button" onclick="displayInfo()">Member 1</button>
+<button type="button" onclick="displayMemberOne()">Member 1</button>
+<button type="button" onclick="displayMemberTwo()">Member 2</button>
 
 <h2 id="name"></h2>
 
 <p id="grade"></p>
 
 <p id="position"></p>
+
+<p id="hobbies"></p>
 
 </body>
 </html> 
