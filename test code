@@ -1,0 +1,25 @@
+<html>
+<head>
+<script>
+const memberOne = {
+name: "Wayne",
+grade: 12,
+position: coder
+}
+function displayInfo() {
+  document.getElementById("name").innerHTML = memberOne.name;
+  document.getElementById("grade").innerHTML = "Grade " + memberOne.grade;
+</script>
+</head>
+<body>
+
+<button type="button" onclick="displayInfo()">Member 1</button>
+
+<h2 id="name"></h2>
+
+<p id="grade"></p>
+
+<p id="position"></p>
+
+</body>
+</html> 
