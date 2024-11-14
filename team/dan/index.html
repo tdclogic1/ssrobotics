@@ -1,0 +1,118 @@
+<html>
+<head>
+<style>
+#name {
+color: green;
+font-size: 50px;
+margin: 15px 0 15px 30px
+}
+p {
+margin: 15px 0 15px 30px
+}
+</style>
+<script>
+const memberOne = {
+name: "Wayne",
+grade: 12,
+position: "coder",
+hobbies: "reading, playing chess"
+}
+const memberTwo = {
+name: "Vincent",
+grade: 12,
+position: "boron",
+hobbies: "sleeping, working"
+}
+const memberThree = {
+name: "William",
+grade: 12,
+position: "kooldood",
+hobbies: "bullying Sam, playing Run 3"
+}
+const memberFour = {
+name: "Jackson",
+grade: 12,
+position: "captain",
+hobbies: "coding, coding, and more coding"
+}
+const memberFive = {
+name: "Archer",
+grade: "unkown",
+position: "mascott",
+hobbies: "steeling from the poor and giving to the rich"
+}
+const memberSix = {
+name: "Clawster",
+grade: "unkown",
+position: "robot",
+hobbies: "following orders, shutting down mid-match"
+}
+const memberSeven = {
+name: "Tyler (Hart)",
+grade: "12",
+position: "wordler",
+hobbies: "sleeping, watching football"
+}
+const memberEight = {
+name: "Freshman",
+grade: "9",
+position: "idiot",
+hobbies: "idiocracy, resetting peace count, being lazy"
+}
+function displayInfo(member) {
+  document.getElementById("name").innerHTML = member.name;
+  document.getElementById("grade").innerHTML = "Grade: " + member.grade;
+  document.getElementById("position").innerHTML = "Position: " + member.position;
+  document.getElementById("hobbies").innerHTML = "Hobbies: " + member.hobbies;
+  }
+  function displayMemberOne() {
+  displayInfo(memberOne)
+  }
+  function displayMemberTwo() {
+  displayInfo(memberTwo)
+  }
+  function displayMemberThree() {
+  displayInfo(memberThree)
+  }
+  function displayMemberFour() {
+  displayInfo(memberFour)
+  }
+  function displayMemberFive() {
+  displayInfo(memberFive)
+  }
+  function displayMemberSix() {
+  displayInfo(memberSix)
+  }
+  function displayMemberSeven() {
+  displayInfo(memberSeven)
+  }
+  function displayMemberEight() {
+  displayInfo(memberEight)
+  }
+</script>
+</head>
+<body>
+
+<header><h1>Meet The Current Members of Our Team</h1></header>
+
+<button type="button" onclick="displayMemberOne()">Member 1</button>
+<button type="button" onclick="displayMemberTwo()">Member 2</button>
+<button type="button" onclick="displayMemberThree()">Member 3</button>
+<button type="button" onclick="displayMemberFour()">Member 4</button>
+<button type="button" onclick="displayMemberFive()">Member 5</button>
+<button type="button" onclick="displayMemberSix()">Member 6</button>
+<button type="button" onclick="displayMemberSeven()">Member 7</button>
+<button type="button" onclick="displayMemberEight()">Member 8</button>
+
+<section>
+<h2 id="name"></h2>
+
+<p id="grade"></p>
+
+<p id="position"></p>
+
+<p id="hobbies"></p>
+</section>
+
+</body>
+</html> 
