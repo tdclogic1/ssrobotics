@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Domain Search Results</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .form-switch .form-check-input {
+            width: 3em;
+            margin-left: -2.5em;
+            height: 1.5em;
+        }
+        .search-result-card {
+            transition: transform 0.2s;
+        }
+        .search-result-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .detail-label {
+            font-weight: 600;
+            color: #666;
+        }
+        .timestamp {
+            font-size: 0.85em;
+            color: #888;
+        }
+        .json-viewer {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 0.9em;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="text-center">
+            <div class="spinner-border text-primary mb-3" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="text-primary">Loading results...</p>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <h1 class="text-center mb-4">Domain Search Results</h1>
+
+                <!-- Search Controls -->
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-6 mb-3 mb-md-0">
+                                <div class="input-group">
+                                    <input type="text" id="searchInput" class="form-control" placeholder="Search domains...">
+                                    <button class="btn btn-primary" id="searchBtn">Search</button>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="fileToggle">
+                                    <label class="form-check-label" for="fileToggle">
+                                        <span id="toggleLabel">Active Domains</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Bar -->
+                <div class="alert alert-info mb-4">
+                    <div class="row text-center">
+                        <div class="col">
+                            <strong>Current File: </strong>
+                            <span id="currentFile">domain_result_active.json</span>
+                        </div>
+                        <div class="col">
+                            <strong>Total Results: </strong>
+                            <span id="resultCount">0</span>
+                        </div>
+                        <div class="col">
+                            <strong>Last Updated: </strong>
+                            <span id="lastUpdated">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results Container -->
+                <div id="resultsContainer"></div>
+
+                <!-- No Results Message -->
+                <div id="noResults" class="text-center py-5 d-none">
+                    <h3 class="text-muted">No matching domains found</h3>
+                    <p class="text-muted">Try adjusting your search terms</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const elements = {
+            searchInput: document.getElementById('searchInput'),
+            searchBtn: document.getElementById('searchBtn'),
+            fileToggle: document.getElementById('fileToggle'),
+            toggleLabel: document.getElementById('toggleLabel'),
+            currentFile: document.getElementById('currentFile'),
+            resultCount: document.getElementById('resultCount'),
+            lastUpdated: document.getElementById('lastUpdated'),
+            resultsContainer: document.getElementById('resultsContainer'),
+            noResults: document.getElementById('noResults'),
+            loadingOverlay: document.getElementById('loadingOverlay')
+        };
+
+        let currentResults = null;
+
+        // Toggle Switch Handler
+        elements.fileToggle.addEventListener('change', (e) => {
+            const isChecked = e.target.checked;
+            elements.toggleLabel.textContent = isChecked ? 'Available Domains' : 'Active Domains';
+            elements.currentFile.textContent = isChecked ? 'domain_available.json' : 'domain_result_active.json';
+            performSearch();
+        });
+
+        // Search Button Handler
+        elements.searchBtn.addEventListener('click', performSearch);
+
+        // Enter Key Handler
+        elements.searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+
+        async function performSearch() {
+            const searchTerm = elements.searchInput.value.toLowerCase();
+            const isAvailableFile = elements.fileToggle.checked;
+            const filename = isAvailableFile ? 'domain_available.json' : 'domain_result_active.json';
+
+            elements.loadingOverlay.style.display = 'flex';
+
+            try {
+                const response = await fetch(`/search-domains?file=${filename}&search=${searchTerm}`);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                
+                const data = await response.json();
+                displayResults(data, searchTerm);
+            } catch (error) {
+                console.error('Search error:', error);
+                alert('Error performing search. Please try again.');
+            } finally {
+                elements.loadingOverlay.style.display = 'none';
+            }
+        }
+
+        function displayResults(data, searchTerm) {
+            currentResults = data;
+            elements.resultCount.textContent = data.domains.length;
+            elements.lastUpdated.textContent = new Date(data.last_updated).toLocaleString();
+
+            if (data.domains.length === 0) {
+                elements.resultsContainer.innerHTML = '';
+                elements.noResults.classList.remove('d-none');
+                return;
+            }
+
+            elements.noResults.classList.add('d-none');
+            elements.resultsContainer.innerHTML = '';
+
+            data.domains.forEach(entry => {
+                const card = createResultCard(entry);
+                elements.resultsContainer.appendChild(card);
+            });
+        }
+
+        function createResultCard(entry) {
+            const col = document.createElement('div');
+            col.className = 'mb-4';
+
+            const domain = entry.domain_data;
+            const checkDate = new Date(entry.check_date).toLocaleString();
+
+            const statusColorMap = {
+                'Active Website': 'success',
+                'Registered (No Active Website)': 'warning',
+                'Has DNS (Status Unclear)': 'info',
+                'Available': 'primary',
+                'Error': 'danger',
+                'Check Failed': 'secondary'
+            };
+
+            const statusColor = statusColorMap[domain.status] || 'secondary';
+
+            col.innerHTML = `
+                <div class="card search-result-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h5 class="card-title">${domain.domain}</h5>
+                            <span class="badge bg-${statusColor}">${domain.status}</span>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="mb-1">
+                                        <span class="detail-label">DNS Records:</span> 
+                                        ${domain.dns_exists ? 'Yes' : 'No'}
+                                    </p>
+                                    ${domain.website.active ? `
+                                        <p class="mb-1">
+                                            <span class="detail-label">Protocol:</span> 
+                                            ${domain.website.protocol}
+                                        </p>
+                                        <p class="mb-1">
+                                            <span class="detail-label">Status Code:</span> 
+                                            ${domain.website.status_code}
+                                        </p>
+                                    ` : ''}
+                                </div>
+                                <div class="col-md-6">
+                                    ${domain.whois.creation_date ? `
+                                        <p class="mb-1">
+                                            <span class="detail-label">Created:</span> 
+                                            ${new Date(domain.whois.creation_date).toLocaleDateString()}
+                                        </p>
+                                    ` : ''}
+                                    ${domain.whois.expiration_date ? `
+                                        <p class="mb-1">
+                                            <span class="detail-label">Expires:</span> 
+                                            ${new Date(domain.whois.expiration_date).toLocaleDateString()}
+                                        </p>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="timestamp text-muted">
+                            Last checked: ${checkDate}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            return col;
+        }
+
+        // Initial search on page load
+        performSearch();
+    </script>
+</body>
+</html>
